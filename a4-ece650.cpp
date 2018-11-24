@@ -33,7 +33,6 @@ string trim(const string& str);
 
 // Gloabl Variables
 int vertex_num = 0; //i to n
-int k_solver = 0; // j to k
 int edge_number = 0; // Captured edges
 vector<int> vertex_cover;  
 int **edges = NULL;
@@ -45,11 +44,6 @@ int main()
     using Minisat::Var;
     using Minisat::mkLit;
     using Minisat::lbool;
-    bool exit_flag = false;
-    int last_result = NOT_FOUND;
-    int last_k=vertex_num;
-    int upper_bound = vertex_num-1;
-    int lower_bound = 0;
     string input;
     while (std::getline(cin, input))
     {
@@ -58,9 +52,14 @@ int main()
       input = "";
     
         if(status_flag == GO_CALCULATE)
-        {
-            status_flag = DONE_CALCULATING;
-            k_solver = vertex_num/2; // j to k
+        {   
+           status_flag = DONE_CALCULATING;
+           bool exit_flag = false;
+           int last_result = NOT_FOUND;
+           int k_solver = vertex_num/2; // j to k
+           int last_k=vertex_num;
+           int upper_bound = vertex_num-1;
+           int lower_bound = 0;
             while(exit_flag == false)
             {   
                 // Exit search routine
@@ -207,6 +206,7 @@ int main()
                
             delete [] *edges;
             delete [] edges;
+            status_flag=WAITING_FOR_VERTEX;
         }   
     }
     return 0;
@@ -223,6 +223,7 @@ void Vertex_Cover_Printer(vector<int> *v)
         cout<< vertex_cover[n]<<" ";
     }
     cout << endl;
+   vertex_cover.clear();
 }
 
 void command_parser(string input)
@@ -269,7 +270,7 @@ void init_edge_vector(int vertex_num, int old_vertex_num)
    }      
       
 void edge_command(string input, size_t space)
-{
+{   
     if (status_flag == WAITING_FOR_EDGES) {
        int old_edge_number=edge_number;
        edge_number=edge_number_calc( input,  space);
@@ -291,9 +292,10 @@ void edge_command(string input, size_t space)
           edges[i][0]=var1;
           edges[i][1]=var2;
           s.erase(0, s.find_first_of(">") + 2);// erase parsed data for next iteration/
-          status_flag = GO_CALCULATE;
+          
           i++;
        }
+       status_flag = GO_CALCULATE;
     }
     else if (status_flag == WAITING_FOR_VERTEX) 
     {
